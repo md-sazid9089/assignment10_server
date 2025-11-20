@@ -1,0 +1,9 @@
+node_modules/
+.env
+.DS_Store
+*.log
+.vercel
+
+# Firebase Admin Service Account
+serviceAccountKey.json
+firebase-adminsdk-*.json
