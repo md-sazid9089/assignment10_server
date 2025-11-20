@@ -12,7 +12,7 @@ const {
   getCategories,
   checkLikeStatus
 } = require('../controllers/artworkController');
-const { verifyFirebaseToken, optionalAuth } = require('../../artify-server/middleware/verifyFirebaseToken');
+const { verifyFirebaseToken, optionalAuth } = require('../middleware/verifyFirebaseToken');
 
 // Public routes - no authentication required
 router.get('/featured', getFeaturedArtworks);
