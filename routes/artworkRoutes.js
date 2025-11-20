@@ -11,7 +11,7 @@ const {
   toggleLike,
   getCategories,
   checkLikeStatus
-} = require('../../artify-server/controllers/artworkController');
+} = require('../controllers/artworkController');
 const { verifyFirebaseToken, optionalAuth } = require('../../artify-server/middleware/verifyFirebaseToken');
 
 // Public routes - no authentication required

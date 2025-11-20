@@ -9,7 +9,7 @@ const {
   getFavoriteIds,
   getFavoritesCount,
   clearAllFavorites
-} = require('../../artify-server/controllers/favoriteController');
+} = require('../controllers/favoriteController');
 const { verifyFirebaseToken, optionalAuth } = require('../../artify-server/middleware/verifyFirebaseToken');
 
 // All favorites routes require authentication
