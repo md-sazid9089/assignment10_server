@@ -1,4 +1,4 @@
-const Artwork = require('../../artify-server/models/Artwork');
+const Artwork = require('../models/Artwork');
 const mongoose = require('mongoose');
 
 // @desc    Create new artwork

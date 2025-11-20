@@ -1,5 +1,5 @@
-const Favorite = require('../../artify-server/models/Favorite');
-const Artwork = require('../../artify-server/models/Artwork');
+const Favorite = require('../models/Favorite');
+const Artwork = require('../models/Artwork');
 const mongoose = require('mongoose');
 
 // @desc    Add artwork to favorites
