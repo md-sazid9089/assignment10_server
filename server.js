@@ -37,8 +37,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // Import routes
-const artworkRoutes = require('../artify-server/routes/artworkRoutes');
-const favoriteRoutes = require('../artify-server/routes/favoriteRoutes');
+const artworkRoutes = require('./routes/artworkRoutes');
+const favoriteRoutes = require('./routes/favoriteRoutes');
 
 // Mount routes
 app.use('/api/artworks', artworkRoutes);
