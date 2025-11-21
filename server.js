@@ -39,10 +39,12 @@ app.use(cookieParser());
 // Import routes
 const artworkRoutes = require('./routes/artworkRoutes');
 const favoriteRoutes = require('./routes/favoriteRoutes');
+const userRoutes = require('./routes/userRoutes');
 
 // Mount routes
 app.use('/api/artworks', artworkRoutes);
 app.use('/api/favorites', favoriteRoutes);
+app.use('/api/users', userRoutes);
 
 // Root route
 app.get('/', (req, res) => {
