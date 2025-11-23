@@ -33,5 +33,4 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(favoriteRoutes);
 
-const { createRequestHandler } = require('@vercel/node');
-module.exports = createRequestHandler(app);
+module.exports = app;
