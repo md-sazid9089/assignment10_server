@@ -14,27 +14,16 @@ const initializeFirebaseAdmin = () => {
       admin.initializeApp({
         credential: admin.credential.cert({
           projectId: process.env.FIREBASE_PROJECT_ID,
-          privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\n/g, '\n'),
+          privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
           clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
         }),
       });
       console.log('✅ Firebase Admin initialized successfully (env vars)');
       return admin.app();
+    } else {
+      console.error('❌ Missing Firebase environment variables: FIREBASE_PROJECT_ID, FIREBASE_PRIVATE_KEY, FIREBASE_CLIENT_EMAIL');
+      return null;
     }
-    const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH || path.join(__dirname, '..', 'serviceAccountKey.json');
-    try {
-      const serviceAccount = require(serviceAccountPath);
-      console.log('🔥 Initializing Firebase Admin with service account file...');
-      admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount),
-      });
-      console.log('✅ Firebase Admin initialized successfully (service account)');
-      return admin.app();
-    } catch (fileError) {
-      console.error('⚠️ Service account file error:', fileError.message);
-      console.error('Looking at path:', serviceAccountPath);
-    }
-    return null;
   } catch (error) {
     console.error('❌ Error initializing Firebase Admin:', error.message);
     if (error.code === 'MODULE_NOT_FOUND') {
