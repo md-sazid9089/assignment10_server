@@ -106,13 +106,16 @@ exports.getUserFavorites = async (req, res) => {
     // Filter out favorites where artwork was deleted
     const validFavorites = favorites.filter(fav => fav.artworkId !== null);
 
+    // Map to array of artwork objects
+    const artworks = validFavorites.map(fav => fav.artworkId);
+
     // Get total count
     const total = await Favorite.countDocuments({ userEmail });
 
     res.json({
       success: true,
-      count: validFavorites.length,
-      data: validFavorites,
+      count: artworks.length,
+      data: artworks,
       pagination: {
         total,
         page: parseInt(page),
