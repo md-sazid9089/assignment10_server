@@ -7,28 +7,26 @@ const initializeFirebaseAdmin = () => {
       console.log('Firebase Admin already initialized');
       return admin.app();
     }
-    if (process.env.FIREBASE_PROJECT_ID && 
-        process.env.FIREBASE_PRIVATE_KEY && 
-        process.env.FIREBASE_CLIENT_EMAIL) {
-      console.log('🔥 Initializing Firebase Admin with environment variables...');
-      admin.initializeApp({
-        credential: admin.credential.cert({
-          projectId: process.env.FIREBASE_PROJECT_ID,
-          privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-          clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-        }),
-      });
-      console.log('✅ Firebase Admin initialized successfully (env vars)');
-      return admin.app();
-    } else {
-      console.error('❌ Missing Firebase environment variables: FIREBASE_PROJECT_ID, FIREBASE_PRIVATE_KEY, FIREBASE_CLIENT_EMAIL');
+    const missing = [];
+    if (!process.env.FIREBASE_PROJECT_ID) missing.push('FIREBASE_PROJECT_ID');
+    if (!process.env.FIREBASE_PRIVATE_KEY) missing.push('FIREBASE_PRIVATE_KEY');
+    if (!process.env.FIREBASE_CLIENT_EMAIL) missing.push('FIREBASE_CLIENT_EMAIL');
+    if (missing.length) {
+      console.error('❌ Missing Firebase environment variables:', missing.join(', '));
       return null;
     }
+    console.log('🔥 Initializing Firebase Admin with environment variables...');
+    admin.initializeApp({
+      credential: admin.credential.cert({
+        projectId: process.env.FIREBASE_PROJECT_ID,
+        privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      }),
+    });
+    console.log('✅ Firebase Admin initialized successfully (env vars)');
+    return admin.app();
   } catch (error) {
     console.error('❌ Error initializing Firebase Admin:', error.message);
-    if (error.code === 'MODULE_NOT_FOUND') {
-      console.error('Service account file not found. Check FIREBASE_SERVICE_ACCOUNT_PATH in .env');
-    }
     return null;
   }
 };

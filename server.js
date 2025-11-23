@@ -1,15 +1,9 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const cookieParser = require('cookie-parser');
 const connectDB = require('./config/db');
-
-// Load environment variables
-dotenv.config();
-
-// Initialize Firebase Admin (must be after dotenv.config()) 
-require('./config/firebase');
-
 // Initialize Express app
 const app = express();
 
@@ -78,5 +72,15 @@ app.use((err, req, res, next) => {
   });
 });
 
-// This file is now refactored for Vercel serverless deployment.
+// Export app for Vercel
+module.exports = app;
+
+// Local development: start server only if run directly
+if (require.main === module) {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log(`🚀 Artify server is running on port ${PORT}`);
+    console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
+  });
+}
 // API routes are handled in the /api directory as serverless functions.
