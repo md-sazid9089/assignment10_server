@@ -2,15 +2,11 @@ const Favorite = require('../models/Favorite');
 const Artwork = require('../models/Artwork');
 const mongoose = require('mongoose');
 
-// @desc    Add artwork to favorites
-// @route   POST /api/favorites
-// @access  Private
 exports.addFavorite = async (req, res) => {
   try {
-    const userEmail = req.user.email; // Get from Firebase auth token
+    const userEmail = req.user.email;
     const { artworkId } = req.body;
 
-    // Validate required fields
     if (!artworkId) {
       return res.status(400).json({
         success: false,
@@ -18,7 +14,6 @@ exports.addFavorite = async (req, res) => {
       });
     }
 
-    // Validate artwork ID format
     if (!mongoose.Types.ObjectId.isValid(artworkId)) {
       return res.status(400).json({
         success: false,
@@ -26,7 +21,6 @@ exports.addFavorite = async (req, res) => {
       });
     }
 
-    // Check if artwork exists
     const artwork = await Artwork.findById(artworkId);
     if (!artwork) {
       return res.status(404).json({
@@ -35,7 +29,6 @@ exports.addFavorite = async (req, res) => {
       });
     }
 
-    // Check if already favorited
     const existingFavorite = await Favorite.findOne({ userEmail, artworkId });
     if (existingFavorite) {
       return res.status(400).json({
@@ -44,13 +37,11 @@ exports.addFavorite = async (req, res) => {
       });
     }
 
-    // Create favorite
     const favorite = await Favorite.create({
       userEmail,
       artworkId
     });
 
-    // Populate artwork details
     const populatedFavorite = await Favorite.findById(favorite._id).populate('artworkId');
 
     res.status(201).json({
@@ -61,7 +52,6 @@ exports.addFavorite = async (req, res) => {
   } catch (error) {
     console.error('Error adding favorite:', error);
     
-    // Handle duplicate key error
     if (error.code === 11000) {
       return res.status(400).json({
         success: false,
@@ -77,9 +67,6 @@ exports.addFavorite = async (req, res) => {
   }
 };
 
-// @desc    Get all favorites for a user
-// @route   GET /api/favorites/:userEmail
-// @access  Private
 exports.getUserFavorites = async (req, res) => {
   try {
     const { userEmail } = req.params;
@@ -93,7 +80,6 @@ exports.getUserFavorites = async (req, res) => {
       });
     }
 
-    // Get favorites with populated artwork data
     const favorites = await Favorite.find({ userEmail })
       .populate({
         path: 'artworkId',
@@ -103,13 +89,10 @@ exports.getUserFavorites = async (req, res) => {
       .skip(skip)
       .limit(parseInt(limit));
 
-    // Filter out favorites where artwork was deleted
     const validFavorites = favorites.filter(fav => fav.artworkId !== null);
 
-    // Map to array of artwork objects
     const artworks = validFavorites.map(fav => fav.artworkId);
 
-    // Get total count
     const total = await Favorite.countDocuments({ userEmail });
 
     res.json({
@@ -133,15 +116,11 @@ exports.getUserFavorites = async (req, res) => {
   }
 };
 
-// @desc    Remove artwork from favorites
-// @route   DELETE /api/favorites
-// @access  Private
 exports.removeFavorite = async (req, res) => {
   try {
-    const userEmail = req.user.email; // Get from Firebase auth token
+    const userEmail = req.user.email;
     const artworkId = req.body.artworkId || req.query.artworkId;
 
-    // Validate required fields
     if (!artworkId) {
       return res.status(400).json({
         success: false,
@@ -149,7 +128,6 @@ exports.removeFavorite = async (req, res) => {
       });
     }
 
-    // Validate artwork ID format
     if (!mongoose.Types.ObjectId.isValid(artworkId)) {
       return res.status(400).json({
         success: false,
@@ -157,7 +135,6 @@ exports.removeFavorite = async (req, res) => {
       });
     }
 
-    // Find and delete favorite
     const result = await Favorite.deleteOne({ userEmail, artworkId });
 
     if (result.deletedCount === 0) {
@@ -181,15 +158,11 @@ exports.removeFavorite = async (req, res) => {
   }
 };
 
-// @desc    Toggle favorite status (add or remove)
-// @route   POST /api/favorites/toggle
-// @access  Private
 exports.toggleFavorite = async (req, res) => {
   try {
-    const userEmail = req.user.email; // Get from Firebase auth token
+    const userEmail = req.user.email;
     const { artworkId } = req.body;
 
-    // Validate required fields
     if (!artworkId) {
       return res.status(400).json({
         success: false,
@@ -197,7 +170,6 @@ exports.toggleFavorite = async (req, res) => {
       });
     }
 
-    // Validate artwork ID format
     if (!mongoose.Types.ObjectId.isValid(artworkId)) {
       return res.status(400).json({
         success: false,
@@ -205,7 +177,6 @@ exports.toggleFavorite = async (req, res) => {
       });
     }
 
-    // Check if artwork exists
     const artwork = await Artwork.findById(artworkId);
     if (!artwork) {
       return res.status(404).json({
@@ -214,7 +185,6 @@ exports.toggleFavorite = async (req, res) => {
       });
     }
 
-    // Check if already favorited
     const existingFavorite = await Favorite.findOne({ userEmail, artworkId });
 
     if (existingFavorite) {
@@ -254,14 +224,10 @@ exports.toggleFavorite = async (req, res) => {
   }
 };
 
-// @desc    Check if artwork is favorited by user
-// @route   GET /api/favorites/check/:userEmail/:artworkId
-// @access  Public
 exports.checkFavoriteStatus = async (req, res) => {
   try {
     const { userEmail, artworkId } = req.params;
 
-    // Validate artwork ID format
     if (!mongoose.Types.ObjectId.isValid(artworkId)) {
       return res.status(400).json({
         success: false,
@@ -287,9 +253,6 @@ exports.checkFavoriteStatus = async (req, res) => {
   }
 };
 
-// @desc    Get favorite artwork IDs for a user (quick lookup)
-// @route   GET /api/favorites/:userEmail/ids
-// @access  Private
 exports.getFavoriteIds = async (req, res) => {
   try {
     const { userEmail } = req.params;
@@ -311,9 +274,6 @@ exports.getFavoriteIds = async (req, res) => {
   }
 };
 
-// @desc    Get count of user's favorites
-// @route   GET /api/favorites/:userEmail/count
-// @access  Private
 exports.getFavoritesCount = async (req, res) => {
   try {
     const { userEmail } = req.params;
@@ -334,9 +294,6 @@ exports.getFavoritesCount = async (req, res) => {
   }
 };
 
-// @desc    Clear all favorites for a user
-// @route   DELETE /api/favorites/:userEmail/clear
-// @access  Private
 exports.clearAllFavorites = async (req, res) => {
   try {
     const { userEmail } = req.params;

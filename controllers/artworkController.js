@@ -62,7 +62,7 @@ exports.createArtwork = async (req, res) => {
 exports.getFeaturedArtworks = async (req, res) => {
   try {
     const artworks = await Artwork.find({ visibility: 'Public' })
-      .sort({ createdAt: -1 })
+      .sort({ likesCount: -1, createdAt: -1 })
       .limit(6)
       .select('-__v');
 
