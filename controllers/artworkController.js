@@ -226,7 +226,7 @@ exports.getArtworksByUser = async (req, res) => {
 exports.updateArtwork = async (req, res) => {
   try {
     const { id } = req.params;
-    const userEmail = req.user.email; // Get from Firebase auth token
+    const { userEmail, userName } = req.body;
 
     // Validate MongoDB ObjectId
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -263,7 +263,8 @@ exports.updateArtwork = async (req, res) => {
       'description',
       'dimensions',
       'price',
-      'visibility'
+      'visibility',
+      'userName'
     ];
 
     // Update only allowed fields
@@ -296,7 +297,7 @@ exports.updateArtwork = async (req, res) => {
 exports.deleteArtwork = async (req, res) => {
   try {
     const { id } = req.params;
-    const userEmail = req.user.email; // Get from Firebase auth token
+    const { userEmail } = req.body;
 
     // Validate MongoDB ObjectId
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -464,22 +465,6 @@ exports.toggleLike = async (req, res) => {
           error: error.message
         });
       }
-    }
-
-    // (Removed duplicate and misplaced code block)
-          }
-
-          // Find artwork
-          const artwork = await Artwork.findById(id);
-          if (!artwork) {
-            return res.status(404).json({
-              success: false,
-              message: 'Artwork not found'
-            });
-          }
-
-          // Only allow delete if userEmail matches
-          if (artwork.userEmail !== userEmail) {
             return res.status(403).json({
               success: false,
               message: 'You do not have permission to delete this artwork'
