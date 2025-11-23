@@ -16,7 +16,6 @@ connectDB();
 const userRoutes = require('../routes/userRoutes');
 
 const app = express();
-
 app.use(cors({
   origin: [
     'http://localhost:5173',
@@ -32,7 +31,7 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-
 app.use(userRoutes);
 
-module.exports = app;
+const { createRequestHandler } = require('@vercel/node');
+module.exports = createRequestHandler(app);
