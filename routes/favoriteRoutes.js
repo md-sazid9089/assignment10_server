@@ -1,3 +1,18 @@
+
+const express = require('express');
+const router = express.Router();
+const {
+  addFavorite,
+  getUserFavorites,
+  removeFavorite,
+  toggleFavorite,
+  checkFavoriteStatus,
+  getFavoriteIds,
+  getFavoritesCount,
+  clearAllFavorites
+} = require('../controllers/favoriteController');
+const { verifyFirebaseToken, optionalAuth } = require('../middleware/verifyFirebaseToken');
+
 // GET /api/favorites?userEmail=... or authenticated user
 router.get('/', async (req, res, next) => {
   const emailFromUser = req.user?.email;
@@ -13,19 +28,6 @@ router.get('/', async (req, res, next) => {
   req.params.userEmail = userEmail;
   return getUserFavorites(req, res, next);
 });
-const express = require('express');
-const router = express.Router();
-const {
-  addFavorite,
-  getUserFavorites,
-  removeFavorite,
-  toggleFavorite,
-  checkFavoriteStatus,
-  getFavoriteIds,
-  getFavoritesCount,
-  clearAllFavorites
-} = require('../controllers/favoriteController');
-const { verifyFirebaseToken, optionalAuth } = require('../middleware/verifyFirebaseToken');
 
 router.use(optionalAuth);
 
