@@ -1,3 +1,18 @@
+// GET /api/favorites?userEmail=... or authenticated user
+router.get('/', async (req, res, next) => {
+  const emailFromUser = req.user?.email;
+  const emailFromQuery = req.query.userEmail;
+  const userEmail = emailFromUser || emailFromQuery;
+
+  if (!userEmail) {
+    return res.status(400).json({
+      success: false,
+      message: 'User email is required (provide ?userEmail=... or be logged in)',
+    });
+  }
+  req.params.userEmail = userEmail;
+  return getUserFavorites(req, res, next);
+});
 const express = require('express');
 const router = express.Router();
 const {
