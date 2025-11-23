@@ -389,93 +389,115 @@ exports.toggleLike = async (req, res) => {
     } else {
       // Like - add user to likedBy and increase count
       artwork.likedBy.push(userEmail);
-      artwork.likesCount += 1;
-      
-      await artwork.save();
+      try {
+        const { id } = req.params;
+        const {
+          title,
+          category,
+          medium,
+          description,
+          dimensions,
+          price,
+          visibility,
+          imageUrl,
+          userName,
+          userEmail
+        } = req.body;
 
-      return res.json({
-        success: true,
-        message: 'Artwork liked successfully',
-        data: {
-          liked: true,
-          likesCount: artwork.likesCount,
-          artwork: artwork
+        // Validate MongoDB ObjectId
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+          return res.status(400).json({
+            success: false,
+            message: 'Invalid artwork ID format'
+          });
         }
-      });
-    }
-  } catch (error) {
-    console.error('Error toggling like:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to toggle like',
-      error: error.message
-    });
-  }
-};
 
-// @desc    Get all categories with counts
-// @route   GET /api/artworks/categories
-// @access  Public
-exports.getCategories = async (req, res) => {
-  try {
-    const categories = await Artwork.aggregate([
-      { $match: { visibility: 'Public' } },
-      { $group: { _id: '$category', count: { $sum: 1 } } },
-      { $sort: { _id: 1 } }
-    ]);
+        // Find artwork
+        const artwork = await Artwork.findById(id);
+        if (!artwork) {
+          return res.status(404).json({
+            success: false,
+            message: 'Artwork not found'
+          });
+        }
 
-    res.json({
-      success: true,
-      data: categories.map(cat => ({
-        category: cat._id,
-        count: cat.count
-      }))
-    });
-  } catch (error) {
-    console.error('Error fetching categories:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to fetch categories',
-      error: error.message
-    });
-  }
-};
+        // Only allow update if userEmail matches
+        if (artwork.userEmail !== userEmail) {
+          return res.status(403).json({
+            success: false,
+            message: 'You do not have permission to update this artwork'
+          });
+        }
 
-// @desc    Check if user liked artwork
-// @route   GET /api/artworks/:id/is-liked/:email
-// @access  Public
-exports.checkLikeStatus = async (req, res) => {
-  try {
-    const { id, email } = req.params;
+        // Update artwork fields
+        const updateFields = {
+          title,
+          category,
+          medium,
+          description,
+          dimensions,
+          price,
+          visibility,
+          imageUrl,
+          userName,
+          userEmail
+        };
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid artwork ID format'
-      });
-    }
+        Object.keys(updateFields).forEach(key => {
+          if (updateFields[key] !== undefined) {
+            artwork[key] = updateFields[key];
+          }
+        });
 
-    const artwork = await Artwork.findById(id);
+        await artwork.save();
 
-    if (!artwork) {
-      return res.status(404).json({
-        success: false,
-        message: 'Artwork not found'
-      });
+        res.json({
+          success: true,
+          message: 'Artwork updated successfully',
+          data: artwork
+        });
+      } catch (error) {
+        console.error('Error updating artwork:', error);
+        res.status(500).json({
+          success: false,
+          message: 'Failed to update artwork',
+          error: error.message
+        });
+      }
     }
 
-    const isLiked = artwork.likedBy.includes(email);
+    // (Removed duplicate and misplaced code block)
+          }
 
-    res.json({
-      success: true,
-      data: { isLiked, likesCount: artwork.likesCount }
-    });
-  } catch (error) {
-    console.error('Error checking like status:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to check like status',
-      error: error.message
-    });
-  }
-};
+          // Find artwork
+          const artwork = await Artwork.findById(id);
+          if (!artwork) {
+            return res.status(404).json({
+              success: false,
+              message: 'Artwork not found'
+            });
+          }
+
+          // Only allow delete if userEmail matches
+          if (artwork.userEmail !== userEmail) {
+            return res.status(403).json({
+              success: false,
+              message: 'You do not have permission to delete this artwork'
+            });
+          }
+
+          await artwork.remove();
+
+          res.json({
+            success: true,
+            message: 'Artwork deleted successfully',
+            data: artwork
+          });
+        } catch (error) {
+          console.error('Error deleting artwork:', error);
+          res.status(500).json({
+            success: false,
+            message: 'Failed to delete artwork',
+            error: error.message
+          });
+        }
