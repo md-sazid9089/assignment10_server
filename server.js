@@ -33,10 +33,12 @@ app.use(cookieParser());
 // Import routes
 const artworkRoutes = require('./routes/artworkRoutes');
 const userRoutes = require('./routes/userRoutes');
+const favoriteRoutes = require('./routes/favoriteRoutes');
 
 // Mount routes
 app.use('/api/artworks', artworkRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/favorites', favoriteRoutes);
 
 // Root route
 app.get('/', (req, res) => {
@@ -57,7 +59,7 @@ app.get('/debug/routes', (req, res) => {
   res.json({ ok: true });
 });
 
-// 404 handler
+// 404 handler (must be after all route mounts)
 app.use('*', (req, res) => {
   res.status(404).json({
     success: false,
