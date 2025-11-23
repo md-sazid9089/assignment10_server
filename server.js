@@ -54,6 +54,11 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Temporary debug route to verify deployment
+app.get('/debug/routes', (req, res) => {
+  res.json({ ok: true });
+});
+
 // 404 handler
 app.use('*', (req, res) => {
   res.status(404).json({
