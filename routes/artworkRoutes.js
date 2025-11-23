@@ -15,6 +15,8 @@ const {
 const { verifyFirebaseToken, optionalAuth } = require('../middleware/verifyFirebaseToken');
 
 // Public routes - no authentication required
+// GET /api/artworks - get all artworks (public)
+router.get('/', getPublicArtworks);
 router.get('/featured', getFeaturedArtworks);
 router.get('/public', getPublicArtworks);
 router.get('/categories', getCategories);
