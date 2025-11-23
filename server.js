@@ -1,7 +1,6 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const dotenv = require('dotenv');
 const cookieParser = require('cookie-parser');
 const connectDB = require('./config/db');
 // Initialize Express app
@@ -15,6 +14,7 @@ const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
   'http://localhost:5174',
+  'https://artifyclient.netlify.app',
   process.env.CLIENT_URL,
   process.env.CLIENT_URL_2
 ].filter(Boolean);
