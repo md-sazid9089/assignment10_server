@@ -24,7 +24,7 @@ router.get('/:id', getArtworkById);
 
 // Protected routes - authentication required
 router.post('/', verifyFirebaseToken, createArtwork);
-router.get('/user/:email', verifyFirebaseToken, getArtworksByUser);
+router.get('/user/:email', getArtworksByUser);
 router.put('/:id', verifyFirebaseToken, updateArtwork);
 router.delete('/:id', verifyFirebaseToken, deleteArtwork);
 
