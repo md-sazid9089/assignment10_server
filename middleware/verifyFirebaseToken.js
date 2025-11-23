@@ -1,3 +1,7 @@
+/**
+ * Middleware to optionally verify Firebase ID token
+ * If Firebase Admin is not initialized, allows request to proceed unauthenticated
+ */
 const { auth, isInitialized } = require('../config/firebase');
 
 /**
@@ -183,8 +187,4 @@ const checkOwnership = (emailField = 'userEmail') => {
   };
 };
 
-module.exports = {
-  verifyFirebaseToken,
-  optionalAuth,
-  checkOwnership
-};
+module.exports = { verifyFirebaseToken, optionalAuth, checkOwnership };

@@ -12,7 +12,7 @@ const {
 } = require('../controllers/favoriteController');
 const { verifyFirebaseToken, optionalAuth } = require('../middleware/verifyFirebaseToken');
 
-router.use(verifyFirebaseToken);
+router.use(optionalAuth);
 
 router.post('/toggle', toggleFavorite);
 
