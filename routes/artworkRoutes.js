@@ -32,11 +32,11 @@ router.get('/:id', getArtworkById);
 router.get('/', getPublicArtworks);
 
 // Artwork routes
-router.post('/', createArtwork);
+router.post('/', verifyFirebaseToken, createArtwork);
 router.put('/:id', verifyFirebaseToken, updateArtwork);
-router.delete('/:id', deleteArtwork);
+router.delete('/:id', verifyFirebaseToken, deleteArtwork);
 
 // Like routes
-router.patch('/:id/like', toggleLike);
+router.patch('/:id/like', verifyFirebaseToken, toggleLike);
 
 module.exports = router;
