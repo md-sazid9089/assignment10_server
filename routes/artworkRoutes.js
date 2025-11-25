@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+
 const {
   createArtwork,
   getFeaturedArtworks,
@@ -12,23 +13,21 @@ const {
   getCategories,
   checkLikeStatus
 } = require('../controllers/artworkController');
-// Public routes - no authentication required
 
-// Artwork routes - no authentication required
-
-// Like routes - no authentication required
-
-
-// More specific routes FIRST
+// SPECIFIC ROUTES FIRST
 router.get('/categories', getCategories);
 router.get('/user/:email', getArtworksByUser);
+router.get('/public', getPublicArtworks);
+router.get('/featured', getFeaturedArtworks);
+
+// Like status route (still more specific)
 router.get('/:id/is-liked/:email', checkLikeStatus);
+
+// DYNAMIC ROUTE AFTER ALL SPECIFIC ROUTES
 router.get('/:id', getArtworkById);
 
-// Public routes
+// ROOT ROUTE LAST
 router.get('/', getPublicArtworks);
-router.get('/featured', getFeaturedArtworks);
-router.get('/public', getPublicArtworks);
 
 // Artwork routes
 router.post('/', createArtwork);
