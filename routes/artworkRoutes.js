@@ -13,20 +13,29 @@ const {
   checkLikeStatus
 } = require('../controllers/artworkController');
 // Public routes - no authentication required
+
+// Artwork routes - no authentication required
+
+// Like routes - no authentication required
+
+
+// More specific routes FIRST
+router.get('/categories', getCategories);
+router.get('/user/:email', getArtworksByUser);
+router.get('/:id/is-liked/:email', checkLikeStatus);
+router.get('/:id', getArtworkById);
+
+// Public routes
 router.get('/', getPublicArtworks);
 router.get('/featured', getFeaturedArtworks);
 router.get('/public', getPublicArtworks);
-router.get('/categories', getCategories);
-router.get('/:id', getArtworkById);
 
-// Artwork routes - no authentication required
+// Artwork routes
 router.post('/', createArtwork);
-router.get('/user/:email', getArtworksByUser);
 router.put('/:id', updateArtwork);
 router.delete('/:id', deleteArtwork);
 
-// Like routes - no authentication required
+// Like routes
 router.patch('/:id/like', toggleLike);
-router.get('/:id/is-liked/:email', checkLikeStatus);
 
 module.exports = router;

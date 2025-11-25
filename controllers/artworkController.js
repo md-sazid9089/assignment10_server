@@ -1,4 +1,3 @@
-// @desc    Get all artwork categories
 // @route   GET /api/artworks/categories
 // @access  Public
 exports.getCategories = async (req, res) => {
@@ -54,6 +53,63 @@ exports.checkLikeStatus = async (req, res) => {
 const Artwork = require('../models/Artwork');
 const mongoose = require('mongoose');
 
+const Artwork = require('../models/Artwork');
+const mongoose = require('mongoose');
+// ...existing code...
+// @desc    Get all artwork categories
+// @route   GET /api/artworks/categories
+// @access  Public
+exports.getCategories = async (req, res) => {
+  try {
+    const categories = await Artwork.distinct('category');
+    res.json({
+      success: true,
+      data: categories
+    });
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch categories',
+      error: error.message
+    });
+  }
+};
+
+// @desc    Check if artwork is liked by user
+// @route   GET /api/artworks/:id/is-liked/:email
+// @access  Public
+exports.checkLikeStatus = async (req, res) => {
+  const { id, email } = req.params;
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid artwork ID format'
+    });
+  }
+  try {
+    const artwork = await Artwork.findById(id);
+    if (!artwork) {
+      return res.status(404).json({
+        success: false,
+        message: 'Artwork not found'
+      });
+    }
+    const liked = artwork.likedBy.includes(email);
+    res.json({
+      success: true,
+      liked
+    });
+  } catch (error) {
+    console.error('Error checking like status:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to check like status',
+      error: error.message
+    });
+  }
+};
+// ...existing code...
 // @desc    Create new artwork
 // @route   POST /api/artworks
 // @access  Private (assumed authenticated)
