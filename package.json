@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "description": "Backend API for ARTIFY - Creative Artwork Showcase Platform",
   "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
     "build": "echo 'No build step required'",
     "vercel-build": "echo 'Building for Vercel...'"
   },
