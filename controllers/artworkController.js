@@ -1,5 +1,11 @@
 // @route   GET /api/artworks/categories
 // @access  Public
+const Artwork = require('../models/Artwork');
+const mongoose = require('mongoose');
+
+// @desc    Get all artwork categories
+// @route   GET /api/artworks/categories
+// @access  Public
 exports.getCategories = async (req, res) => {
   try {
     const categories = await Artwork.distinct('category');
@@ -17,6 +23,9 @@ exports.getCategories = async (req, res) => {
   }
 };
 
+// @desc    Check if artwork is liked by user
+// @route   GET /api/artworks/:id/is-liked/:email
+// @access  Public
 // @desc    Check if artwork is liked by user
 // @route   GET /api/artworks/:id/is-liked/:email
 // @access  Public
@@ -50,11 +59,8 @@ exports.checkLikeStatus = async (req, res) => {
     });
   }
 };
-const Artwork = require('../models/Artwork');
-const mongoose = require('mongoose');
 
-const Artwork = require('../models/Artwork');
-const mongoose = require('mongoose');
+// ...existing code...
 // ...existing code...
 // @desc    Get all artwork categories
 // @route   GET /api/artworks/categories
