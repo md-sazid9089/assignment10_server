@@ -4,8 +4,16 @@ const mongoose = require('mongoose');
 
 exports.addFavorite = async (req, res) => {
   try {
-    const userEmail = req.user.email;
+    // Try auth user first, then fall back to body
+    const userEmail = req.user?.email || req.body.userEmail;
     const { artworkId } = req.body;
+
+    if (!userEmail) {
+      return res.status(400).json({
+        success: false,
+        message: 'User email is required'
+      });
+    }
 
     if (!artworkId) {
       return res.status(400).json({
@@ -90,9 +98,7 @@ exports.getUserFavorites = async (req, res) => {
       .limit(parseInt(limit));
 
     const validFavorites = favorites.filter(fav => fav.artworkId !== null);
-
     const artworks = validFavorites.map(fav => fav.artworkId);
-
     const total = await Favorite.countDocuments({ userEmail });
 
     res.json({
@@ -118,8 +124,15 @@ exports.getUserFavorites = async (req, res) => {
 
 exports.removeFavorite = async (req, res) => {
   try {
-    const userEmail = req.user.email;
+    const userEmail = req.user?.email || req.body.userEmail || req.query.userEmail;
     const artworkId = req.body.artworkId || req.query.artworkId;
+
+    if (!userEmail) {
+      return res.status(400).json({
+        success: false,
+        message: 'User email is required'
+      });
+    }
 
     if (!artworkId) {
       return res.status(400).json({
@@ -160,8 +173,15 @@ exports.removeFavorite = async (req, res) => {
 
 exports.toggleFavorite = async (req, res) => {
   try {
-    const userEmail = req.user.email;
+    const userEmail = req.user?.email || req.body.userEmail;
     const { artworkId } = req.body;
+
+    if (!userEmail) {
+      return res.status(400).json({
+        success: false,
+        message: 'User email is required'
+      });
+    }
 
     if (!artworkId) {
       return res.status(400).json({
