@@ -14,6 +14,8 @@ const {
   checkLikeStatus
 } = require('../controllers/artworkController');
 
+const { verifyFirebaseToken } = require('../middleware/verifyFirebaseToken');
+
 // SPECIFIC ROUTES FIRST
 router.get('/categories', getCategories);
 router.get('/user/:email', getArtworksByUser);
@@ -31,7 +33,7 @@ router.get('/', getPublicArtworks);
 
 // Artwork routes
 router.post('/', createArtwork);
-router.put('/:id', updateArtwork);
+router.put('/:id', verifyFirebaseToken, updateArtwork);
 router.delete('/:id', deleteArtwork);
 
 // Like routes

@@ -341,7 +341,8 @@ exports.getArtworksByUser = async (req, res) => {
 exports.updateArtwork = async (req, res) => {
   try {
     const { id } = req.params;
-    const { userEmail, userName } = req.body;
+    const bodyUserEmail = req.body.userEmail;
+    const userName = req.body.userName;
 
     // Validate MongoDB ObjectId
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -360,9 +361,19 @@ exports.updateArtwork = async (req, res) => {
         message: 'Artwork not found'
       });
     }
+    // Debug logging to understand ownership issues
+    console.log('--- updateArtwork debug ---');
+    console.log('BODY:', req.body);
+    console.log('req.user:', req.user);
+    console.log('artwork.userEmail:', artwork.userEmail);
 
-    // Check ownership
-    if (artwork.userEmail !== userEmail) {
+    // Use server-verified user email for ownership check when available.
+    // Do NOT trust client-sent `userEmail` for authorization (client can be tampered).
+    const authEmail = (req.user && req.user.email) || null;
+    console.log('userEmail used for auth:', authEmail);
+
+    // Only enforce ownership when we have a verified authEmail
+    if (authEmail && artwork.userEmail !== authEmail) {
       return res.status(403).json({
         success: false,
         message: 'You are not authorized to update this artwork'
@@ -382,7 +393,6 @@ exports.updateArtwork = async (req, res) => {
       'userName'
     ];
 
-    // Update only allowed fields
     allowedUpdates.forEach(field => {
       if (req.body[field] !== undefined) {
         artwork[field] = req.body[field];
@@ -405,6 +415,7 @@ exports.updateArtwork = async (req, res) => {
     });
   }
 };
+
 
 // @desc    Delete artwork
 // @route   DELETE /api/artworks/:id
