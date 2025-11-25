@@ -4,8 +4,8 @@ const mongoose = require('mongoose');
 
 exports.addFavorite = async (req, res) => {
   try {
-    // Try auth user first, then fall back to body
-    const userEmail = req.user?.email || req.body.userEmail;
+    // Demo-mode: require userEmail in request body
+    const userEmail = req.body.userEmail;
     const { artworkId } = req.body;
 
     if (!userEmail) {
@@ -124,7 +124,8 @@ exports.getUserFavorites = async (req, res) => {
 
 exports.removeFavorite = async (req, res) => {
   try {
-    const userEmail = req.user?.email || req.body.userEmail || req.query.userEmail;
+    // Demo-mode: prefer body, then query
+    const userEmail = req.body.userEmail || req.query.userEmail;
     const artworkId = req.body.artworkId || req.query.artworkId;
 
     if (!userEmail) {
@@ -173,7 +174,8 @@ exports.removeFavorite = async (req, res) => {
 
 exports.toggleFavorite = async (req, res) => {
   try {
-    const userEmail = req.user?.email || req.body.userEmail;
+    // Demo-mode: require userEmail in body
+    const userEmail = req.body.userEmail;
     const { artworkId } = req.body;
 
     if (!userEmail) {

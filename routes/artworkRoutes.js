@@ -14,7 +14,7 @@ const {
   checkLikeStatus
 } = require('../controllers/artworkController');
 
-const { verifyFirebaseToken } = require('../middleware/verifyFirebaseToken');
+// demo-mode: do not require server-side Firebase verification for artwork CRUD/like
 
 // SPECIFIC ROUTES FIRST
 router.get('/categories', getCategories);
@@ -31,12 +31,12 @@ router.get('/:id', getArtworkById);
 // ROOT ROUTE LAST
 router.get('/', getPublicArtworks);
 
-// Artwork routes
-router.post('/', verifyFirebaseToken, createArtwork);
-router.put('/:id', verifyFirebaseToken, updateArtwork);
-router.delete('/:id', verifyFirebaseToken, deleteArtwork);
+// Artwork routes (demo-mode: no server-side verification)
+router.post('/', createArtwork);
+router.put('/:id', updateArtwork);
+router.delete('/:id', deleteArtwork);
 
 // Like routes
-router.patch('/:id/like', verifyFirebaseToken, toggleLike);
+router.patch('/:id/like', toggleLike);
 
 module.exports = router;

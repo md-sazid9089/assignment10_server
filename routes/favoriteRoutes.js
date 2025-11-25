@@ -11,7 +11,7 @@ const {
   getFavoritesCount,
   clearAllFavorites
 } = require('../controllers/favoriteController');
-const { verifyFirebaseToken, optionalAuth } = require('../middleware/verifyFirebaseToken');
+// demo-mode favorites: don't require server-side Firebase verification
 
 // GET /api/favorites/:userEmail
 router.get('/:userEmail', getUserFavorites);

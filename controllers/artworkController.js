@@ -118,17 +118,17 @@ exports.checkLikeStatus = async (req, res) => {
 // ...existing code...
 // @desc    Create new artwork
 // @route   POST /api/artworks
-// @access  Private (requires Firebase auth)
+// @access  Demo (client-provided userEmail required)
 exports.createArtwork = async (req, res) => {
   try {
-    // Require authenticated user
-    const authEmail = req.user && req.user.email;
-    const authName = req.user && (req.user.name || req.user.displayName || null);
+    // Demo-mode: require userEmail and userName in the request body
+    const bodyUserEmail = req.body && req.body.userEmail ? String(req.body.userEmail).toLowerCase() : null;
+    const bodyUserName = req.body && req.body.userName ? String(req.body.userName) : null;
 
-    if (!authEmail) {
-      return res.status(401).json({
+    if (!bodyUserEmail) {
+      return res.status(400).json({
         success: false,
-        message: 'Authentication required to create artwork'
+        message: 'User email is required to create artwork'
       });
     }
 
@@ -151,7 +151,7 @@ exports.createArtwork = async (req, res) => {
       });
     }
 
-    // Create artwork using server-verified user info
+    // Create artwork using client-provided demo user info
     const artwork = await Artwork.create({
       imageUrl,
       title,
@@ -161,8 +161,8 @@ exports.createArtwork = async (req, res) => {
       dimensions: dimensions || null,
       price: price || null,
       visibility: visibility || 'Public',
-      userName: authName || req.body.userName || 'Anonymous',
-      userEmail: authEmail.toLowerCase()
+      userName: bodyUserName || 'Anonymous',
+      userEmail: bodyUserEmail
     });
 
     res.status(201).json({
@@ -346,7 +346,7 @@ exports.getArtworksByUser = async (req, res) => {
 
 // @desc    Update artwork
 // @route   PUT /api/artworks/:id
-// @access  Private (owner only)
+// @access  Demo (owner by userEmail)
 exports.updateArtwork = async (req, res) => {
   try {
     const { id } = req.params;
@@ -370,17 +370,17 @@ exports.updateArtwork = async (req, res) => {
         message: 'Artwork not found'
       });
     }
-    // Use server-verified user email for ownership check when available.
-    // Normalize to lowercase because `userEmail` is stored lowercased in the DB.
-    // Do NOT trust client-sent `userEmail` for authorization (client can be tampered).
-    const authEmail = req.user && req.user.email ? req.user.email.toLowerCase() : null;
 
-    // Only enforce ownership when we have a verified authEmail
-    if (authEmail && artwork.userEmail !== authEmail) {
-      return res.status(403).json({
-        success: false,
-        message: 'You are not authorized to update this artwork'
-      });
+    // Demo mode ownership: use client-provided `userEmail` if present.
+    // If `userEmail` is provided, enforce ownership; otherwise skip check (demo mode).
+    if (bodyUserEmail) {
+      const normalizedBodyEmail = String(bodyUserEmail).toLowerCase();
+      if (artwork.userEmail !== normalizedBodyEmail) {
+        return res.status(403).json({
+          success: false,
+          message: 'You are not authorized to update this artwork'
+        });
+      }
     }
 
     // Fields that can be updated
@@ -422,12 +422,12 @@ exports.updateArtwork = async (req, res) => {
 
 // @desc    Delete artwork
 // @route   DELETE /api/artworks/:id
-// @access  Private (owner only)
+// @access  Demo (owner by userEmail)
 exports.deleteArtwork = async (req, res) => {
   try {
     const { id } = req.params;
-    // Use server-verified user email for ownership check (normalize to lowercase)
-    const authEmail = req.user && req.user.email ? req.user.email.toLowerCase() : null;
+    // Use client-sent userEmail for demo ownership check
+    const bodyUserEmail = req.body && req.body.userEmail ? String(req.body.userEmail).toLowerCase() : null;
 
     // Validate MongoDB ObjectId
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -447,15 +447,8 @@ exports.deleteArtwork = async (req, res) => {
       });
     }
 
-    if (!authEmail) {
-      return res.status(401).json({
-        success: false,
-        message: 'Authentication required'
-      });
-    }
-
-    // Check ownership using server-verified (lowercased) email
-    if (artwork.userEmail !== authEmail) {
+    // Demo mode: if client provided a userEmail, enforce ownership check.
+    if (bodyUserEmail && artwork.userEmail !== bodyUserEmail) {
       return res.status(403).json({
         success: false,
         message: 'You are not authorized to delete this artwork'
@@ -481,22 +474,14 @@ exports.deleteArtwork = async (req, res) => {
 
 // @desc    Like/Unlike artwork
 // @route   PATCH /api/artworks/:id/like
-// @access  Private
+// @access  Demo (requires userEmail in body)
 exports.toggleLike = async (req, res) => {
   const { id } = req.params;
-  // Normalize authenticated email to lowercase to match how emails are stored
-  const userEmail = req.user && req.user.email ? req.user.email.toLowerCase() : null;
+  // Use client-provided userEmail (demo mode)
+  const userEmail = req.body && req.body.userEmail ? String(req.body.userEmail).toLowerCase() : null;
 
   if (!userEmail) {
-    return res.status(401).json({ success: false, message: 'Authentication required' });
-  }
-
-  // Validate inputs
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).json({
-      success: false,
-      message: 'Invalid artwork ID format'
-    });
+    return res.status(400).json({ success: false, message: 'User email is required to like artwork' });
   }
 
   // Find artwork
@@ -509,16 +494,14 @@ exports.toggleLike = async (req, res) => {
     });
   }
 
-  // Check if user already liked
-  // Normalize likedBy entries comparison by lowercasing stored emails during check
+  // Normalize stored likedBy entries for comparison
   const normalizedLikedBy = artwork.likedBy.map(e => (typeof e === 'string' ? e.toLowerCase() : e));
   const hasLiked = normalizedLikedBy.includes(userEmail);
 
   if (hasLiked) {
     // Unlike - remove user from likedBy and decrease count
     artwork.likedBy = artwork.likedBy.filter(email => (email || '').toLowerCase() !== userEmail);
-    artwork.likesCount = Math.max(0, artwork.likesCount - 1);
-        
+    artwork.likesCount = Math.max(0, (artwork.likesCount || 0) - 1);
     await artwork.save();
 
     return res.json({
@@ -530,17 +513,20 @@ exports.toggleLike = async (req, res) => {
         artwork: artwork
       }
     });
-  } else {
-    // Like - add user to likedBy and increase count
-    // Ensure we push a lowercase email for consistency
-    artwork.likedBy.push(userEmail);
   }
 
+  // Like - add user to likedBy and increase count
+  artwork.likedBy.push(userEmail);
+  artwork.likesCount = (artwork.likesCount || 0) + 1;
   await artwork.save();
 
-  res.json({
+  return res.json({
     success: true,
-    message: 'Artwork updated successfully',
-    data: artwork
+    message: 'Artwork liked successfully',
+    data: {
+      liked: true,
+      likesCount: artwork.likesCount,
+      artwork: artwork
+    }
   });
-}
+};
