@@ -84,8 +84,7 @@ module.exports = app;
 if (require.main === module) {
   const PORT = process.env.PORT || 5000;
   app.listen(PORT, () => {
-    console.log(`🚀 Artify server is running on port ${PORT}`);
-    console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
+    console.log(` Artify server is running on port ${PORT}`);
+    console.log(` Environment: ${process.env.NODE_ENV}`);
   });
 }
-// API routes are handled in the /api directory as serverless functions.
