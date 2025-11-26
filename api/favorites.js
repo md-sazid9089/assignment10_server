@@ -7,8 +7,8 @@ const dotenv = require('dotenv');
 // Load environment variables
 dotenv.config();
 
-// Initialize Firebase Admin
-require('../config/firebase');
+// Demo-mode: do not initialize Firebase Admin here
+// require('../config/firebase');
 
 // Connect to MongoDB
 connectDB();
@@ -21,6 +21,7 @@ app.use(cors({
     'http://localhost:5173',
     'http://localhost:3000',
     'http://localhost:5174',
+    'https://artifyclient.netlify.app',
     process.env.CLIENT_URL,
     process.env.CLIENT_URL_2
   ].filter(Boolean),
