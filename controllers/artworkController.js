@@ -1,11 +1,6 @@
-// @route   GET /api/artworks/categories
-// @access  Public
+
 const Artwork = require('../models/Artwork');
 const mongoose = require('mongoose');
-
-// @desc    Get all artwork categories
-// @route   GET /api/artworks/categories
-// @access  Public
 exports.getCategories = async (req, res) => {
   try {
     const categories = await Artwork.distinct('category');
@@ -22,13 +17,6 @@ exports.getCategories = async (req, res) => {
     });
   }
 };
-
-// @desc    Check if artwork is liked by user
-// @route   GET /api/artworks/:id/is-liked/:email
-// @access  Public
-// @desc    Check if artwork is liked by user
-// @route   GET /api/artworks/:id/is-liked/:email
-// @access  Public
 exports.checkLikeStatus = async (req, res) => {
   const { id, email } = req.params;
   if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -60,11 +48,7 @@ exports.checkLikeStatus = async (req, res) => {
   }
 };
 
-// ...existing code...
-// ...existing code...
-// @desc    Get all artwork categories
-// @route   GET /api/artworks/categories
-// @access  Public
+
 exports.getCategories = async (req, res) => {
   try {
     const categories = await Artwork.distinct('category');
@@ -82,9 +66,7 @@ exports.getCategories = async (req, res) => {
   }
 };
 
-// @desc    Check if artwork is liked by user
-// @route   GET /api/artworks/:id/is-liked/:email
-// @access  Public
+
 exports.checkLikeStatus = async (req, res) => {
   const { id, email } = req.params;
   if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -115,10 +97,7 @@ exports.checkLikeStatus = async (req, res) => {
     });
   }
 };
-// ...existing code...
-// @desc    Create new artwork
-// @route   POST /api/artworks
-// @access  Demo (client-provided userEmail required)
+
 exports.createArtwork = async (req, res) => {
   try {
     // Demo-mode: require userEmail and userName in the request body
@@ -180,9 +159,7 @@ exports.createArtwork = async (req, res) => {
   }
 };
 
-// @desc    Get featured artworks (6 most recent)
-// @route   GET /api/artworks/featured
-// @access  Public
+
 exports.getFeaturedArtworks = async (req, res) => {
   try {
     const artworks = await Artwork.find({ visibility: 'Public' })
@@ -206,18 +183,14 @@ exports.getFeaturedArtworks = async (req, res) => {
   }
 };
 
-// @desc    Get all public artworks with filters
-// @route   GET /api/artworks/public
-// @access  Public
 exports.getPublicArtworks = async (req, res) => {
   try {
     const { search, category, limit = 50, page = 1 } = req.query;
     const skip = (page - 1) * limit;
 
-    // Build query
+    
     const query = { visibility: 'Public' };
 
-    // Search filter - case-insensitive regex on title and userName
     if (search) {
       query.$or = [
         { title: { $regex: search, $options: 'i' } },
@@ -226,13 +199,10 @@ exports.getPublicArtworks = async (req, res) => {
         { medium: { $regex: search, $options: 'i' } }
       ];
     }
-
-    // Category filter
     if (category && category !== 'All') {
       query.category = category;
     }
 
-    // Execute query with pagination
     const artworks = await Artwork.find(query)
       .sort({ createdAt: -1 })
       .skip(skip)
@@ -262,14 +232,11 @@ exports.getPublicArtworks = async (req, res) => {
   }
 };
 
-// @desc    Get single artwork by ID
-// @route   GET /api/artworks/:id
-// @access  Public (but check visibility)
 exports.getArtworkById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Validate MongoDB ObjectId
+
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({
         success: false,
@@ -300,9 +267,6 @@ exports.getArtworkById = async (req, res) => {
   }
 };
 
-// @desc    Get artworks by user email
-// @route   GET /api/artworks/user/:email
-// @access  Private (user's own artworks)
 exports.getArtworksByUser = async (req, res) => {
   try {
     const { email } = req.params;
@@ -345,24 +309,19 @@ exports.getArtworksByUser = async (req, res) => {
   }
 };
 
-// @desc    Update artwork
-// @route   PUT /api/artworks/:id
-// @access  Demo (owner by userEmail)
+
 exports.updateArtwork = async (req, res) => {
   try {
     const { id } = req.params;
     const bodyUserEmail = req.body.userEmail;
     const userName = req.body.userName;
 
-    // Validate MongoDB ObjectId
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({
         success: false,
         message: 'Invalid artwork ID format'
       });
     }
-
-    // Find artwork
     const artwork = await Artwork.findById(id);
 
     if (!artwork) {
@@ -372,8 +331,7 @@ exports.updateArtwork = async (req, res) => {
       });
     }
 
-    // Demo mode ownership: use client-provided `userEmail` if present.
-    // If `userEmail` is provided, enforce ownership; otherwise skip check (demo mode).
+
     if (bodyUserEmail) {
       const normalizedBodyEmail = String(bodyUserEmail).toLowerCase();
       if (artwork.userEmail !== normalizedBodyEmail) {
@@ -384,7 +342,7 @@ exports.updateArtwork = async (req, res) => {
       }
     }
 
-    // Fields that can be updated
+    
     const allowedUpdates = [
       'imageUrl',
       'title',
@@ -421,16 +379,12 @@ exports.updateArtwork = async (req, res) => {
 };
 
 
-// @desc    Delete artwork
-// @route   DELETE /api/artworks/:id
-// @access  Demo (owner by userEmail)
 exports.deleteArtwork = async (req, res) => {
   try {
     const { id } = req.params;
-    // Use client-sent userEmail for demo ownership check
+    
     const bodyUserEmail = req.body && req.body.userEmail ? String(req.body.userEmail).toLowerCase() : null;
 
-    // Validate MongoDB ObjectId
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({
         success: false,
@@ -438,7 +392,7 @@ exports.deleteArtwork = async (req, res) => {
       });
     }
 
-    // Find artwork
+
     const artwork = await Artwork.findById(id);
 
     if (!artwork) {
@@ -448,7 +402,7 @@ exports.deleteArtwork = async (req, res) => {
       });
     }
 
-    // Demo mode: if client provided a userEmail, enforce ownership check.
+    
     if (bodyUserEmail && artwork.userEmail !== bodyUserEmail) {
       return res.status(403).json({
         success: false,
@@ -473,12 +427,9 @@ exports.deleteArtwork = async (req, res) => {
   }
 };
 
-// @desc    Like/Unlike artwork
-// @route   PATCH /api/artworks/:id/like
-// @access  Demo (requires userEmail in body)
+
 exports.toggleLike = async (req, res) => {
   const { id } = req.params;
-  // Use client-provided userEmail (demo mode)
   const userEmail = req.body && req.body.userEmail ? String(req.body.userEmail).toLowerCase() : null;
 
   if (!userEmail) {
