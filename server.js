@@ -12,8 +12,9 @@ connectDB();
 // Middleware
 const allowedOrigins = [
   'http://localhost:5173',
-  'http://localhost:3000',
   'http://localhost:5174',
+  'http://localhost:5175',
+  'http://localhost:3000',
   'https://artifyclient.netlify.app',
   process.env.CLIENT_URL,
   process.env.CLIENT_URL_2
